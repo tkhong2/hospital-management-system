@@ -1,0 +1,51 @@
+{
+  "app": {
+    "title": "Integrated Hospital Management System",
+    "shortTitle": "HospitalMS",
+    "portal": "Hospital Application Portal"
+  },
+  "auth": {
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "username": "Username",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "welcome": "Welcome back",
+    "loginSuccess": "Login successful",
+    "loginFailed": "Invalid username or password"
+  },
+  "modules": {
+    "healthexam": "Health Examination",
+    "healthexamDesc": "Corporate contracts, packages, multi-specialty stations, MoH conclusions",
+    "outpatient": "Outpatient Care",
+    "outpatientDesc": "Reception, examination, clinical orders, e-prescription and billing",
+    "inpatient": "Inpatient Management",
+    "inpatientDesc": "Admission, bed management, physician orders, monitoring and discharge",
+    "pharmacy": "Pharmacy & Inventory",
+    "pharmacyDesc": "Inventory, batch & expiry (FEFO), dispensary and stock management",
+    "patient": "Master Patient Index (MPI)",
+    "patientDesc": "Unique patient identifier, citizen ID, health insurance and medical history",
+    "catalog": "Master Catalogs",
+    "catalogDesc": "ICD-10, technical services, departments, medicine and consumables",
+    "admin": "System Administration",
+    "adminDesc": "Users, RBAC permissions, departments and audit logs"
+  },
+  "common": {
+    "search": "Search...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create New",
+    "status": "Status",
+    "actions": "Actions",
+    "loading": "Loading data...",
+    "noData": "No data available",
+    "active": "Active",
+    "inactive": "Inactive",
+    "apps": "Applications",
+    "notifications": "Notifications",
+    "profile": "Profile"
+  }
+}
+

@@ -1,0 +1,340 @@
+version: '3.8'
+
+services:
+  # ==================== Infrastructure ====================
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: hospitalms-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres123}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./deploy/docker/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    networks:
+      - hospitalms-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: hospitalms-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - hospitalms-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: hospitalms-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - hospitalms-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  seq:
+    image: datalust/seq:latest
+    container_name: hospitalms-seq
+    ports:
+      - "5341:5341"
+      - "8081:80"
+    environment:
+      ACCEPT_EULA: "Y"
+    volumes:
+      - seq-data:/data
+    networks:
+      - hospitalms-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: hospitalms-pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@hospital.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - hospitalms-network
+
+  # ==================== Application Services ====================
+
+  identity-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/Identity/HospitalMS.Identity.API/Dockerfile
+    container_name: hospitalms-identity-api
+    ports:
+      - "5101:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=hospitalms_identity;Username=postgres;Password=postgres123
+      - Serilog__WriteTo__1__Args__serverUrl=http://seq:5341
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seq:
+        condition: service_started
+    networks:
+      - hospitalms-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  patient-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/Patient/HospitalMS.Patient.API/Dockerfile
+    container_name: hospitalms-patient-api
+    ports:
+      - "5102:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=hospitalms_patient;Username=postgres;Password=postgres123
+      - Serilog__WriteTo__1__Args__serverUrl=http://seq:5341
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seq:
+        condition: service_started
+    networks:
+      - hospitalms-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  catalog-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/Catalog/HospitalMS.Catalog.API/Dockerfile
+    container_name: hospitalms-catalog-api
+    ports:
+      - "5103:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=hospitalms_catalog;Username=postgres;Password=postgres123
+      - Serilog__WriteTo__1__Args__serverUrl=http://seq:5341
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seq:
+        condition: service_started
+    networks:
+      - hospitalms-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  outpatient-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/Outpatient/HospitalMS.Outpatient.API/Dockerfile
+    container_name: hospitalms-outpatient-api
+    ports:
+      - "5104:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=hospitalms_outpatient;Username=postgres;Password=postgres123
+      - Serilog__WriteTo__1__Args__serverUrl=http://seq:5341
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seq:
+        condition: service_started
+    networks:
+      - hospitalms-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  inpatient-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/Inpatient/HospitalMS.Inpatient.API/Dockerfile
+    container_name: hospitalms-inpatient-api
+    ports:
+      - "5105:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=hospitalms_inpatient;Username=postgres;Password=postgres123
+      - Serilog__WriteTo__1__Args__serverUrl=http://seq:5341
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seq:
+        condition: service_started
+    networks:
+      - hospitalms-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  pharmacy-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/Pharmacy/HospitalMS.Pharmacy.API/Dockerfile
+    container_name: hospitalms-pharmacy-api
+    ports:
+      - "5106:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=hospitalms_pharmacy;Username=postgres;Password=postgres123
+      - Serilog__WriteTo__1__Args__serverUrl=http://seq:5341
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seq:
+        condition: service_started
+    networks:
+      - hospitalms-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  healthexam-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/HealthExam/HospitalMS.HealthExam.API/Dockerfile
+    container_name: hospitalms-healthexam-api
+    ports:
+      - "5107:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=hospitalms_healthexam;Username=postgres;Password=postgres123
+      - Serilog__WriteTo__1__Args__serverUrl=http://seq:5341
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seq:
+        condition: service_started
+    networks:
+      - hospitalms-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  api-gateway:
+    build:
+      context: ./backend
+      dockerfile: src/ApiGateway/HospitalMS.ApiGateway/Dockerfile
+    container_name: hospitalms-api-gateway
+    ports:
+      - "5100:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    depends_on:
+      identity-api:
+        condition: service_healthy
+      patient-api:
+        condition: service_healthy
+      catalog-api:
+        condition: service_healthy
+      outpatient-api:
+        condition: service_healthy
+      inpatient-api:
+        condition: service_healthy
+      pharmacy-api:
+        condition: service_healthy
+      healthexam-api:
+        condition: service_healthy
+    networks:
+      - hospitalms-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hospitalms-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - hospitalms-network
+
+volumes:
+  postgres-data:
+  redis-data:
+  seq-data:
+  pgadmin-data:
+
+networks:
+  hospitalms-network:
+    driver: bridge

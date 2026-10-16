@@ -1,0 +1,52 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.DotSettings.user
+packages/
+TestResults/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+publish/
+
+## IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+## Node / Vue
+node_modules/
+dist/
+.output/
+.nuxt/
+*.local
+.env.local
+.env.*.local
+
+## Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+
+## OS
+.DS_Store
+Thumbs.db
+*.tmp
+
+## Docker
+.env
+!.env.example
+
+## Coverage
+coverage/
+*.lcov

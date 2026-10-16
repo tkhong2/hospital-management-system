@@ -1,0 +1,51 @@
+{
+  "app": {
+    "title": "Hệ thống Quản lý Bệnh viện Tích hợp",
+    "shortTitle": "HospitalMS",
+    "portal": "Cổng ứng dụng bệnh viện"
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "welcome": "Chào mừng bạn trở lại",
+    "loginSuccess": "Đăng nhập thành công",
+    "loginFailed": "Tên đăng nhập hoặc mật khẩu không chính xác"
+  },
+  "modules": {
+    "healthexam": "Khám sức khỏe",
+    "healthexamDesc": "Quản lý hợp đồng đoàn, gói khám, trạm khám đa chuyên khoa, kết luận TT14/TT24",
+    "outpatient": "Khám ngoại trú",
+    "outpatientDesc": "Tiếp đón, khám chữa bệnh, chỉ định cận lâm sàng, kê đơn thuốc và viện phí",
+    "inpatient": "Quản lý nội trú",
+    "inpatientDesc": "Nhập viện, sơ đồ giường bệnh, y lệnh điều trị, theo dõi diễn biến và xuất viện",
+    "pharmacy": "Kho dược",
+    "pharmacyDesc": "Quản lý nhập - xuất - tồn, kho chẵn/lẻ/tủ trực, theo dõi lô hạn dùng (FEFO)",
+    "patient": "Hồ sơ Bệnh nhân (MPI)",
+    "patientDesc": "Định danh bệnh nhân dùng chung, CCCD, BHYT và lịch sử khám chữa bệnh",
+    "catalog": "Danh mục dùng chung",
+    "catalogDesc": "ICD-10, dịch vụ kỹ thuật TT39, phòng ban, danh mục thuốc và vật tư",
+    "admin": "Quản trị hệ thống",
+    "adminDesc": "Người dùng, phân quyền RBAC, phòng ban và giám sát nhật ký hoạt động"
+  },
+  "common": {
+    "search": "Tìm kiếm...",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "create": "Thêm mới",
+    "status": "Trạng thái",
+    "actions": "Thao tác",
+    "loading": "Đang tải dữ liệu...",
+    "noData": "Không có dữ liệu",
+    "active": "Đang hoạt động",
+    "inactive": "Ngừng hoạt động",
+    "apps": "Ứng dụng",
+    "notifications": "Thông báo",
+    "profile": "Thông tin cá nhân"
+  }
+}
+
