@@ -1,0 +1,446 @@
+{
+	"info": {
+		"_postman_id": "75536449-8721-4232-b17b-bb59df617cf6",
+		"name": "HospitalMS Complete API Collection",
+		"description": "Bộ sưu tập API hoàn chỉnh cho Hệ Thống Quản Lý Bệnh Viện Tích Hợp (HospitalMS) gồm 7 microservices, API Gateway YARP, Xác thực RBAC, Outbox, và Health Checks.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5100",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "01. Identity & Auth",
+			"item": [
+				{
+					"name": "Login (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data && jsonData.data.accessToken) {",
+									"    pm.collectionVariables.set('token', jsonData.data.accessToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/identity/api/v1/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["identity", "api", "v1", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Get My Applications (Launcher)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/identity/api/v1/me/applications",
+							"host": ["{{baseUrl}}"],
+							"path": ["identity", "api", "v1", "me", "applications"]
+						}
+					}
+				},
+				{
+					"name": "List Users",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/identity/api/v1/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["identity", "api", "v1", "users"]
+						}
+					}
+				},
+				{
+					"name": "List Roles",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/identity/api/v1/roles",
+							"host": ["{{baseUrl}}"],
+							"path": ["identity", "api", "v1", "roles"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "02. Patient Service (MPI)",
+			"item": [
+				{
+					"name": "Search Patients",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/patient/api/v1/patients?searchTerm=BN&pageNumber=1&pageSize=20",
+							"host": ["{{baseUrl}}"],
+							"path": ["patient", "api", "v1", "patients"],
+							"query": [
+								{ "key": "searchTerm", "value": "BN" },
+								{ "key": "pageNumber", "value": "1" },
+								{ "key": "pageSize", "value": "20" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Trần Quốc Tuấn\",\n  \"gender\": 1,\n  \"dateOfBirth\": \"1990-05-15\",\n  \"identityCardNumber\": \"001090001234\",\n  \"healthInsuranceNumber\": \"DN4010123456789\",\n  \"phoneNumber\": \"0987654321\",\n  \"address\": \"Số 10 Đường Hoàng Hoa Thám, Ba Đình, Hà Nội\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/patient/api/v1/patients",
+							"host": ["{{baseUrl}}"],
+							"path": ["patient", "api", "v1", "patients"]
+						}
+					}
+				},
+				{
+					"name": "Merge Duplicate Patients",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sourcePatientId\": \"00000000-0000-0000-0000-000000000001\",\n  \"targetPatientId\": \"00000000-0000-0000-0000-000000000002\",\n  \"reason\": \"Trùng căn cước công dân và thông tin bảo hiểm y tế\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/patient/api/v1/patients/merge",
+							"host": ["{{baseUrl}}"],
+							"path": ["patient", "api", "v1", "patients", "merge"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "03. Catalog Service",
+			"item": [
+				{
+					"name": "Get ICD-10 List",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/catalog/api/v1/catalog/icd10?keyword=A00",
+							"host": ["{{baseUrl}}"],
+							"path": ["catalog", "api", "v1", "catalog", "icd10"],
+							"query": [{ "key": "keyword", "value": "A00" }]
+						}
+					}
+				},
+				{
+					"name": "Get Technical Services",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/catalog/api/v1/catalog/services?group=CLS",
+							"host": ["{{baseUrl}}"],
+							"path": ["catalog", "api", "v1", "catalog", "services"],
+							"query": [{ "key": "group", "value": "CLS" }]
+						}
+					}
+				},
+				{
+					"name": "Get Departments",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/catalog/api/v1/catalog/departments",
+							"host": ["{{baseUrl}}"],
+							"path": ["catalog", "api", "v1", "catalog", "departments"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "04. Outpatient Service",
+			"item": [
+				{
+					"name": "Get Outpatient Waiting Queue",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/outpatient/api/v1/outpatient/queue?roomId=PK-NOI01",
+							"host": ["{{baseUrl}}"],
+							"path": ["outpatient", "api", "v1", "outpatient", "queue"],
+							"query": [{ "key": "roomId", "value": "PK-NOI01" }]
+						}
+					}
+				},
+				{
+					"name": "Checkin Patient to Queue",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patientId\": \"00000000-0000-0000-0000-000000000001\",\n  \"patientCode\": \"BN-2026-0001\",\n  \"patientName\": \"Nguyễn Văn A\",\n  \"roomCode\": \"PK-NOI01\",\n  \"roomName\": \"Phòng khám Nội 1\",\n  \"isPriority\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/outpatient/api/v1/outpatient/queue/checkin",
+							"host": ["{{baseUrl}}"],
+							"path": ["outpatient", "api", "v1", "outpatient", "queue", "checkin"]
+						}
+					}
+				},
+				{
+					"name": "Diagnose Encounter",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"mainIcdCode\": \"I10\",\n  \"mainDisease\": \"Tăng huyết áp vô căn\",\n  \"temperature\": 37.0,\n  \"pulse\": 80,\n  \"bloodPressure\": \"120/80\",\n  \"respiratoryRate\": 18,\n  \"weight\": 65.5,\n  \"height\": 170.0\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/outpatient/api/v1/outpatient/encounters/00000000-0000-0000-0000-000000000001/diagnose",
+							"host": ["{{baseUrl}}"],
+							"path": ["outpatient", "api", "v1", "outpatient", "encounters", "00000000-0000-0000-0000-000000000001", "diagnose"]
+						}
+					}
+				},
+				{
+					"name": "Prescribe Medicines",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"diagnosis\": \"Tăng huyết áp vô căn\",\n  \"advice\": \"Uống sau ăn no, hạn chế ăn mặn\",\n  \"items\": [\n    {\n      \"medicineId\": \"00000000-0000-0000-0000-000000000001\",\n      \"medicineCode\": \"THUOC-001\",\n      \"medicineName\": \"Amlodipine 5mg\",\n      \"unit\": \"Viên\",\n      \"quantity\": 30,\n      \"dosage\": \"1 viên/ngày (sáng)\",\n      \"unitPrice\": 2500,\n      \"insuranceCoverageRate\": 0.8\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/outpatient/api/v1/outpatient/encounters/00000000-0000-0000-0000-000000000001/prescribe",
+							"host": ["{{baseUrl}}"],
+							"path": ["outpatient", "api", "v1", "outpatient", "encounters", "00000000-0000-0000-0000-000000000001", "prescribe"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "05. Inpatient Service",
+			"item": [
+				{
+					"name": "Get Ward Bed Map",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/inpatient/api/v1/inpatient/beds?departmentCode=KHOA_NOI",
+							"host": ["{{baseUrl}}"],
+							"path": ["inpatient", "api", "v1", "inpatient", "beds"],
+							"query": [{ "key": "departmentCode", "value": "KHOA_NOI" }]
+						}
+					}
+				},
+				{
+					"name": "Transfer Bed (Drag & Drop Action)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"admissionId\": \"00000000-0000-0000-0000-000000000001\",\n  \"fromBedId\": \"00000000-0000-0000-0000-000000000010\",\n  \"toBedId\": \"00000000-0000-0000-0000-000000000011\",\n  \"reason\": \"Bệnh nhân yêu cầu chuyển sang phòng dịch vụ đơn\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/inpatient/api/v1/inpatient/admissions/transfer-bed",
+							"host": ["{{baseUrl}}"],
+							"path": ["inpatient", "api", "v1", "inpatient", "admissions", "transfer-bed"]
+						}
+					}
+				},
+				{
+					"name": "Record Inpatient Vitals",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"temperature\": 37.2,\n  \"pulse\": 82,\n  \"bloodPressure\": \"125/85\",\n  \"respiratoryRate\": 18,\n  \"spO2\": 98.5,\n  \"note\": \"Bệnh nhân tỉnh táo, tiếp xúc tốt\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/inpatient/api/v1/inpatient/admissions/00000000-0000-0000-0000-000000000001/vitals",
+							"host": ["{{baseUrl}}"],
+							"path": ["inpatient", "api", "v1", "inpatient", "admissions", "00000000-0000-0000-0000-000000000001", "vitals"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "06. Pharmacy Service",
+			"item": [
+				{
+					"name": "Get Medicines Catalog",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/pharmacy/api/v1/pharmacy/medicines",
+							"host": ["{{baseUrl}}"],
+							"path": ["pharmacy", "api", "v1", "pharmacy", "medicines"]
+						}
+					}
+				},
+				{
+					"name": "Get Current Inventory Stocks",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/pharmacy/api/v1/pharmacy/stocks?warehouseId=00000000-0000-0000-0000-000000000001",
+							"host": ["{{baseUrl}}"],
+							"path": ["pharmacy", "api", "v1", "pharmacy", "stocks"],
+							"query": [{ "key": "warehouseId", "value": "00000000-0000-0000-0000-000000000001" }]
+						}
+					}
+				},
+				{
+					"name": "Dispense Prescription (FEFO)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "X-Warehouse-Id", "value": "KHO_CHAN" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"prescriptionId\": \"00000000-0000-0000-0000-000000000001\",\n  \"warehouseId\": \"00000000-0000-0000-0000-000000000001\",\n  \"items\": [\n    {\n      \"medicineId\": \"00000000-0000-0000-0000-000000000001\",\n      \"quantity\": 30\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pharmacy/api/v1/pharmacy/dispense",
+							"host": ["{{baseUrl}}"],
+							"path": ["pharmacy", "api", "v1", "pharmacy", "dispense"]
+						}
+					}
+				},
+				{
+					"name": "Query Stock Ledger",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/pharmacy/api/v1/pharmacy/stock-ledger?medicineId=00000000-0000-0000-0000-000000000001",
+							"host": ["{{baseUrl}}"],
+							"path": ["pharmacy", "api", "v1", "pharmacy", "stock-ledger"],
+							"query": [{ "key": "medicineId", "value": "00000000-0000-0000-0000-000000000001" }]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "07. Health Exam Service",
+			"item": [
+				{
+					"name": "List Companies",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/healthexam/api/v1/healthexam/companies",
+							"host": ["{{baseUrl}}"],
+							"path": ["healthexam", "api", "v1", "healthexam", "companies"]
+						}
+					}
+				},
+				{
+					"name": "List Exam Packages",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/healthexam/api/v1/healthexam/packages",
+							"host": ["{{baseUrl}}"],
+							"path": ["healthexam", "api", "v1", "healthexam", "packages"]
+						}
+					}
+				},
+				{
+					"name": "Conclude Health Exam",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"classification\": 1,\n  \"concludingDoctorName\": \"BS.CKII Nguyễn Văn An\",\n  \"conclusions\": \"Đủ sức khỏe làm việc theo quy định Bộ Y tế.\",\n  \"recommendations\": \"Tập thể dục đều đặn, tái khám định kỳ hàng năm.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/healthexam/api/v1/healthexam/visits/00000000-0000-0000-0000-000000000001/conclude",
+							"host": ["{{baseUrl}}"],
+							"path": ["healthexam", "api", "v1", "healthexam", "visits", "00000000-0000-0000-0000-000000000001", "conclude"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "08. Health Checks & Observability",
+			"item": [
+				{
+					"name": "Liveness Probe (/health/live)",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/health/live",
+							"host": ["{{baseUrl}}"],
+							"path": ["health", "live"]
+						}
+					}
+				},
+				{
+					"name": "Readiness Probe (/health/ready)",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/health/ready",
+							"host": ["{{baseUrl}}"],
+							"path": ["health", "ready"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
+

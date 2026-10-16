@@ -31,6 +31,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Inpatient API v1"));
+
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<HospitalMS.Inpatient.Infrastructure.Persistence.InpatientDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    await HospitalMS.Inpatient.Infrastructure.Persistence.InpatientDbInitializer.SeedAsync(db, logger);
 }
 
 app.UseSerilogRequestLogging();

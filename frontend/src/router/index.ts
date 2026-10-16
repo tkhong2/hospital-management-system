@@ -61,7 +61,7 @@ const router = createRouter({
           path: 'admin',
           name: 'admin',
           component: () => import('@/modules/admin/views/AdminHome.vue'),
-          meta: { appCode: 'admin' }
+          meta: { appCode: 'admin', requiredPermission: 'users.view' }
         }
       ]
     },
@@ -79,12 +79,29 @@ router.beforeEach((to, from, next) => {
 
   if (requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login', query: { redirect: to.fullPath } })
-  } else if (to.name === 'login' && authStore.isAuthenticated) {
-    next({ name: 'dashboard' })
-  } else {
-    next()
+    return
   }
+
+  if (to.name === 'login' && authStore.isAuthenticated) {
+    next({ name: 'dashboard' })
+    return
+  }
+
+  // App-level RBAC Check
+  const targetAppCode = to.meta.appCode as string | undefined
+  if (targetAppCode && !authStore.canAccessApp(targetAppCode)) {
+    next({ name: 'dashboard' })
+    return
+  }
+
+  // Permission-level RBAC Check
+  const requiredPermission = to.meta.requiredPermission as string | undefined
+  if (requiredPermission && !authStore.hasPermission(requiredPermission)) {
+    next({ name: 'dashboard' })
+    return
+  }
+
+  next()
 })
 
 export default router
-

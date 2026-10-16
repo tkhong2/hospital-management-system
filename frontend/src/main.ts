@@ -6,6 +6,7 @@ import Aura from '@primevue/themes/aura'
 import App from './App.vue'
 import router from './router'
 import i18n from './i18n'
+import permissionDirective from './directives/permission'
 
 import './assets/main.css'
 import 'primeicons/primeicons.css'
@@ -15,14 +16,14 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.use(i18n)
+app.directive('permission', permissionDirective)
 app.use(PrimeVue, {
   theme: {
     preset: Aura,
     options: {
-      darkModeSelector: '.dark-mode'
+      darkModeSelector: '.dark'
     }
   }
 })
 
 app.mount('#app')
-

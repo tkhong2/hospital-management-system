@@ -4,7 +4,7 @@ import AppLauncherModal from '@/components/AppLauncherModal.vue'
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 flex flex-col">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors">
     <AppHeader />
     <main class="flex-1 p-6 max-w-7xl w-full mx-auto">
       <router-view />
@@ -12,4 +12,3 @@ import AppLauncherModal from '@/components/AppLauncherModal.vue'
     <AppLauncherModal />
   </div>
 </template>
-

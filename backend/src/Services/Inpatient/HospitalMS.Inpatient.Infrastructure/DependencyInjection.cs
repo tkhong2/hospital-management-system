@@ -1,3 +1,6 @@
+using HospitalMS.Inpatient.Application.Common.Interfaces;
+using HospitalMS.Inpatient.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,6 +12,27 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var provider = configuration.GetValue<string>("DatabaseProvider") ?? "PostgreSql";
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+        services.AddDbContext<InpatientDbContext>(options =>
+        {
+            if (provider.Equals("InMemory", StringComparison.OrdinalIgnoreCase))
+            {
+                options.UseInMemoryDatabase("HospitalMS_Inpatient_Db");
+            }
+            else if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+            {
+                options.UseSqlServer(connectionString);
+            }
+            else
+            {
+                options.UseNpgsql(connectionString);
+            }
+        });
+
+        services.AddScoped<IInpatientDbContext>(sp => sp.GetRequiredService<InpatientDbContext>());
+
         return services;
     }
 }

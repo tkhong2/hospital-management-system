@@ -31,6 +31,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Outpatient API v1"));
+
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<HospitalMS.Outpatient.Infrastructure.Persistence.OutpatientDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    await HospitalMS.Outpatient.Infrastructure.Persistence.OutpatientDbInitializer.SeedAsync(db, logger);
 }
 
 app.UseSerilogRequestLogging();

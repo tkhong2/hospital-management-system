@@ -8,5 +8,6 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Mapster" />
     <PackageReference Include="Mapster.DependencyInjection" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
 </Project>
